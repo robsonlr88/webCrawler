@@ -6,6 +6,8 @@ class crawler
 protected $_url;
 protected $_depth;
 protected $_host;
+
+
 protected $_seen = array();
 protected $_filter = array();
 //protected $_crawled		= array();
@@ -30,18 +32,24 @@ protected $_result		= array();
 
 protected function loadPage($url)
 {
+	//count((is_countable($url)?$url:[]));
 	list($content, $httpCode, $time) = $this->getContent($url);
 	$doc = new DOMDocument();
 	$loaded = @$doc->loadHTML($content);
+
 	if ($loaded !== false) {
 		$this->_depth-=1;
 		$this->crawlLinks($doc,$url);
-		//$this->crawlImages($doc,$url);
-		//$this->crawlText($doc,$url);
-		//$this->crawlTitle($doc,$url);
-		$this->_seen[] = array('url'=>$url, 'code'=>$httpCode, 'load'=>$time, 'internal'=>count($this->_internal[$url]), 'external'=>count($this->_external[$url]), 'images'=>count($this->_images[$url]), 'words'=>$this->_words[$url], 'title_length'=>array_sum($this->_titles[$url])/count($this->_titles[$url]));
-	}	    
+		$this->crawlImages($doc,$url);
+		$this->crawlText($doc,$url);
+		$this->crawlTitle($doc,$url);
+//		count((array)$var);
+		//$this->_seen[] = array('url'=>$url, 'code'=>$httpCode, 'load'=>$time, 'internal'=>count($this->_internal[$url]), 'external'=>count($this->_external[$url]), 'images'=>count($this->_images[$url]), 'words'=>$this->_words[$url], 'title_length'=>array_sum($this->_titles[$url])/count($this->_titles[$url]));
+		$this->_seen[] = array('url'=>$url, 'code'=>$httpCode, 'load'=>$time, 'internal'=>count($this->_internal[$url]), 'images'=>count($this->_images[$url]), 'words'=>$this->_words[$url], 'title_length'=>array_sum($this->_titles[$url])/count($this->_titles[$url]));
+
+		}	    
 }
+
 
 
 protected function crawlLinks($doc,$url)
@@ -69,6 +77,41 @@ protected function crawlLinks($doc,$url)
 	
 }
 
+protected function crawlImages($doc,$url)
+{
+	foreach ($doc->getElementsByTagName("img") as $imgTag) {
+		$src = $imgTag->getAttribute('src');
+		if(in_array($src, $this->_visited)) continue;
+		$this->_images[$url][] = $src;	
+		$this->_visited[] = $src;        
+	}
+}
+
+protected function crawlText($doc,$url)
+{
+	$xpath = new DOMXPath($doc);
+	$nodes = $xpath->query('//text()'); // text() will only give the textnodes in the document
+
+	$textNodeContent = '';
+	foreach($nodes as $node) {
+		$textNodeContent .= " $node->nodeValue";
+	}
+	$this->_words[$url] = str_word_count($textNodeContent);
+}
+
+protected function crawlTitle($doc,$url)
+{
+	foreach ($doc->getElementsByTagName("h1") as $hTag) {	  
+		if(in_array($hTag->nodeValue, $this->_visited)) continue;
+		$this->_titles[$url][] =  strlen($hTag->nodeValue);	        
+		$this->_visited[] = $hTag->nodeValue;      
+	}
+	foreach ($doc->getElementsByTagName("h2") as $h2Tag) {	       
+		if(in_array($h2Tag->nodeValue, $this->_visited)) continue;
+		$this->_titles[$url][] =  strlen($h2Tag->nodeValue);	        
+		$this->_visited[] = $h2Tag->nodeValue;              
+	}
+}
 
 //From Project
 protected function getContent($url)
@@ -88,9 +131,9 @@ protected function getContent($url)
 
 	$html = curl_exec($ch);
 	$time = curl_getinfo($ch, CURLINFO_TOTAL_TIME);
-	$status = curl_getinfo($ch, CURLINFO_HTTP_CODE);
+	$httpCode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
 	curl_close($ch);
-	return array($html, $status, $time);
+	return array($html, $httpCode, $time);
 }
 
 /**

@@ -2,16 +2,15 @@
 include('crawler.php');
 $url="https://agencyanalytics.com";
 $pages="";
-if($_POST["pages"]!="")
+$imageCount=0;
+$internalCount=0;
+$externalCount=0;
+$pageLoad=0;
+$wordCount=0;
+$titleLength=0;
+$pageCrawled=1;
+if(isset($_POST["pages"]))
 {
-	$imageCount=0;
-  $internalCount=0;
-  $externalCount=0;
-  $pageLoad=0;
-  $wordCount=0;
-  $titleLength=0;
-	//$url = parse_url($_POST["url"], PHP_URL_SCHEME) === null ? 'http://' . $_POST["url"] : $_POST["url"];
-	//$pages = 4;
 	$pages = $_POST["pages"];
 	$crawler = new Crawler($url,$pages); // create an object of Crawler class
 	$crawler->run(); // execute the code
@@ -19,11 +18,10 @@ if($_POST["pages"]!="")
 	$pageCrawled = count($visited);
 	foreach($visited as $visit)
 	{
-		//var_dump($visit['title_length']);
 		$url = $visit['url'];
 		$imageCount += $visit['images'];
 		$internalCount += $visit['internal'];
-		$externalCount += $visit['external'];
+		//$externalCount += $visit['external'];
 		$wordCount += $visit['words'];
 		$titleLength += $visit['title_length'];			
 		$pageLoad +=$visit['load'];
@@ -45,12 +43,10 @@ if($_POST["pages"]!="")
       <h3 class="text-center">PHP Crawler on agencyanalytics.com</h3>
       <form method="POST" action="">
         <div class="row pt-4 p-3">
-          <div class="form-check form-switch">
-            <h5 class=" p-3 text-center">How many pages would you like to crawl?</h5>
-            <div class="text-center ">
-              <input class=" p-3 border rounded text-center" type="number" id="pages" name="pages" placeholder="Between 4 - 6 pages" min=4 max=6>
-              <button type="submit" class="p-3 btn btn-primary">Crawl</button>
-            </div>
+          <h5 class=" p-3 text-center">How many pages would you like to crawl?</h5>
+          <div class="text-center ">
+            <input class=" p-3 border rounded text-center" type="number" id="pages" name="pages" placeholder="Between 4 - 6 pages" min=4 max=6 style="width: 250px">
+            <button type="submit" class="p-3 btn btn-primary">Crawl</button>
           </div>
         </div>
       </form>
@@ -58,27 +54,28 @@ if($_POST["pages"]!="")
 
 
       <div class="row p-5 bg-white border rounded ">
-        <div>
+        <div class="text-center">
             Number of pages crawled: <?= $pageCrawled ?>
-        <div>        
-            Number of a unique images: 
         </div>
-        <div>
-            Number of unique internal links:
+        <div class="text-center">        
+            Number of a unique images: <?= $imageCount ?>
         </div>
-        <div>
-            Number of unique external links: 
+        <div class="text-center">
+            Number of unique internal links: <?= $internalCount ?>
         </div>
-        <div>
-            Average page load in seconds:
+        <div class="text-center">
+            Number of unique external links: <?= $externalCount ?>
         </div>
-        <div>
-            Average word count:
+        <div class="text-center">
+            Average page load in seconds: <?= round($pageLoad/$pageCrawled,2) ?>
         </div>
-        <div>
-            Average title length:
+        <div class="text-center">
+            Average word count: <?= ($wordCount/$pageCrawled) ?>
         </div>
-      </div>
+        <div class="text-center">
+            Average title length: <?= round($titleLength/$pageCrawled,2) ?>
+        </div>
+
 
     <table class="table">
       <thead class="thead-dark">
@@ -88,7 +85,7 @@ if($_POST["pages"]!="")
         </tr>
       </thead>
       <tbody>
-      <?php if($_POST["pages"]!=""){
+      <?php if(isset($_POST["pages"])){
         foreach($visited as $visit){?>
         <tr>
           <td style="width: 50%;" scope="row">
@@ -108,6 +105,7 @@ if($_POST["pages"]!="")
         ?>	
       </tbody>
     </table>
+    </div>
   </div>
 
 
