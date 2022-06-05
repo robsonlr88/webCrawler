@@ -2,9 +2,8 @@
 include('crawler.php');
 $url="https://agencyanalytics.com";
 $pages="";
-$imageCount=0;
+$images=0;
 $internalCount=0;
-$externalCount=0;
 $pageLoad=0;
 $wordCount=0;
 $titleLength=0;
@@ -12,19 +11,20 @@ $pageCrawled=1;
 if(isset($_POST["pages"]))
 {
 	$pages = $_POST["pages"];
-	$crawler = new Crawler($url,$pages); // create an object of Crawler class
-	$crawler->run(); // execute the code
-	$visited = $crawler->getResult(); // fetch the result into an array
+  
+	$crawler = new Crawler($url,$pages); 
+	$crawler->run(); 
+	$visited = $crawler->getResult();
 	$pageCrawled = count($visited);
 	foreach($visited as $visit)
 	{
 		$url = $visit['url'];
-		$imageCount += $visit['images'];
+		$images += $visit['images'];
 		$internalCount += $visit['internal'];
-		//$externalCount += $visit['external'];
 		$wordCount += $visit['words'];
 		$titleLength += $visit['title_length'];			
 		$pageLoad +=$visit['load'];
+
 	}
 }
 ?>
@@ -35,7 +35,6 @@ if(isset($_POST["pages"]))
 <head>
   <title>PHP Crawler - Agency Analytics</title>
   <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-EVSTQN3/azprG1Anm3QDgpJLIm9Nao0Yz1ztcQTwFspd3yD65VohhpuuCOmLASjC" crossorigin="anonymous">
-
 </head>
 <body class="bg-light">
   <div class="container p-3">
@@ -53,65 +52,59 @@ if(isset($_POST["pages"]))
     </div>
 
 
-      <div class="row p-5 bg-white border rounded ">
-        <div class="text-center">
-            Number of pages crawled: <?= $pageCrawled ?>
-        </div>
-        <div class="text-center">        
-            Number of a unique images: <?= $imageCount ?>
-        </div>
-        <div class="text-center">
-            Number of unique internal links: <?= $internalCount ?>
-        </div>
-        <div class="text-center">
-            Number of unique external links: <?= $externalCount ?>
-        </div>
-        <div class="text-center">
-            Average page load in seconds: <?= round($pageLoad/$pageCrawled,2) ?>
-        </div>
-        <div class="text-center">
-            Average word count: <?= ($wordCount/$pageCrawled) ?>
-        </div>
-        <div class="text-center">
-            Average title length: <?= round($titleLength/$pageCrawled,2) ?>
-        </div>
+    <div class="row p-5 bg-white border rounded ">
+      <div class="text-center">
+          Number of pages crawled: <?= $pageCrawled ?>
+      </div>
+      <div class="text-center">        
+          Number of a unique images: <?= $images ?>
+      </div>
+      <div class="text-center">
+          Number of unique internal links: <?= $internalCount ?>
+      </div>
+      <div class="text-center">
+          Average page load in seconds: <?= round($pageLoad/$pageCrawled,2) ?>
+      </div>
+      <div class="text-center">
+          Average word count: <?= round($wordCount/$pageCrawled,2) ?>
+      </div>
+      <div class="text-center">
+          Average title length: <?= round($titleLength/$pageCrawled,2) ?>
+      </div>
 
 
-    <table class="table">
-      <thead class="thead-dark">
-        <tr>
-          <th scope="col" style="width: 50%;">Name</th>
-          <th scope="col" style="width: 30%;" class="p-3">HTTP code</th>
-        </tr>
-      </thead>
-      <tbody>
-      <?php if(isset($_POST["pages"])){
-        foreach($visited as $visit){?>
-        <tr>
-          <td style="width: 50%;" scope="row">
-            <div>
-              <h5>
-              <?=$visit['url']?>
-              </h5>
-            </div>
-          </td>
-          <td style="width: 30%;" scope="row" class="p-2">
-            <?=$visit['code']?>
-          </td>
-        </tr>
-        <?php 
-        }
-        } 
-        ?>	
-      </tbody>
-    </table>
+      <table class="table">
+        <thead class="thead-dark">
+          <tr>
+            <th scope="col" style="width: 50%;">Name</th>
+            <th scope="col" style="width: 30%;" class="p-3">HTTP code</th>
+          </tr>
+        </thead>
+        <tbody>
+        <?php if(isset($_POST["pages"])){
+          foreach($visited as $visit){?>
+          <tr>
+            <td style="width: 50%;" scope="row">
+              <div>
+                <h5>
+                <?=$visit['url']?>
+                </h5>
+              </div>
+            </td>
+            <td style="width: 30%;" scope="row" class="p-2">
+              <?=$visit['code']?>
+            </td>
+          </tr>
+          <?php 
+          }
+          } 
+          ?>	
+        </tbody>
+      </table>
     </div>
   </div>
 
-
   <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/js/bootstrap.bundle.min.js" integrity="sha384-MrcW6ZMFYlzcLA8Nl+NtUVF0sA7MsXsP1UyJoMp4YLEuNSfAP+JcXn/tWtIaxVXM" crossorigin="anonymous"></script>
-
-
 
 </body>
 </html>
