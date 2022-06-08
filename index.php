@@ -1,6 +1,6 @@
 <?php
 include('crawler.php');
-$url="https://agencyanalytics.com";
+$url="";
 $pages="";
 $images=0;
 $internalCount=0;
@@ -8,10 +8,10 @@ $pageLoad=0;
 $wordCount=0;
 $titleLength=0;
 $pageCrawled=1;
-if(isset($_POST["pages"]))
+if(isset($_POST["pages"]) && isset($_POST["url"]))
 {
+  $url = parse_url($_POST["url"], PHP_URL_SCHEME) === null ? 'http://' . $_POST["url"] : $_POST["url"];
 	$pages = $_POST["pages"];
-  
 	$crawler = new Crawler($url,$pages); 
 	$crawler->run(); 
 	$visited = $crawler->getResult();
@@ -33,18 +33,21 @@ if(isset($_POST["pages"]))
 <!DOCTYPE html>
 <html>
 <head>
-  <title>PHP Crawler - Agency Analytics</title>
+  <title>PHP Crawler</title>
   <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-EVSTQN3/azprG1Anm3QDgpJLIm9Nao0Yz1ztcQTwFspd3yD65VohhpuuCOmLASjC" crossorigin="anonymous">
 </head>
 <body class="bg-light">
   <div class="container p-3">
     <div class="row p-5 bg-white border rounded mb-4">
-      <h3 class="text-center">PHP Crawler on agencyanalytics.com</h3>
+      <h3 class="text-center">PHP Crawler</h3>
       <form method="POST" action="">
         <div class="row pt-4 p-3">
-          <h5 class=" p-3 text-center">How many pages would you like to crawl?</h5>
+          <div class="text-center">
+						<input type="text" class="p-3 border rounded text-center" id="url" name="url" value="<?=$url?>" placeholder="URL">
+					</div>
+          <h5 class="p-3 text-center">How many pages would you like to crawl?</h5>
           <div class="text-center ">
-            <input class=" p-3 border rounded text-center" type="number" id="pages" name="pages" placeholder="Between 4 - 6 pages" min=4 max=6 style="width: 250px">
+            <input class="p-3 border rounded text-center" type="number" id="pages" name="pages" placeholder="Between 4 - 6 pages" min=4 max=6 style="width: 250px">
             <button type="submit" class="p-3 btn btn-primary">Crawl</button>
           </div>
         </div>
